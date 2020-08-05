@@ -141,16 +141,22 @@ namespace BlackTrader
                                 Console.WriteLine(pair.ToString());
                         }
 
-                        if (cmdData.Length < 2)
+                        if (cmdData.Length == 3)
                         {
-                            Console.WriteLine("Trade offers for All cities:");
-                            PrintPairs(ItemDataPool.DataPoolAnalyser.TradeOffersFromCity(DataPool));
+                            Console.WriteLine("Trade offers for " + cmdData[1] + " city to "+cmdData[2]+" city:");
+                            PrintPairs(ItemDataPool.DataPoolAnalyser.TradeOffersFromCity(DataPool,cmdData[1],cmdData[2]));
                             Console.WriteLine("Using this data is a big risk. not calculated number of items.");
                             break;
                         }
-
-                        Console.WriteLine("Trade offers for " + cmdData[1] + " city:");
-                        PrintPairs(ItemDataPool.DataPoolAnalyser.TradeOffersFromCity(DataPool, cmdData[1]));
+                        else if (cmdData.Length == 2)
+                        {
+                            Console.WriteLine("Trade offers for " + cmdData[1] + " city:");
+                            PrintPairs(ItemDataPool.DataPoolAnalyser.TradeOffersFromCity(DataPool, cmdData[1]));
+                            Console.WriteLine("Using this data is a big risk. not calculated number of items.");
+                            break;
+                        }
+                        Console.WriteLine("Trade offers for All cities:");
+                        PrintPairs(ItemDataPool.DataPoolAnalyser.TradeOffersFromCity(DataPool));
                         Console.WriteLine("Using this data is a big risk. not calculated number of items.");
                         break;
                     case Commands.Commands.CityNames:

@@ -7,25 +7,54 @@ namespace BlackTrader.DataPool
     {
         public static class DataPoolAnalyser
         {
-            public static IEnumerable<TradeOfferPair> TradeOffersFromCity(ItemDataPool dataPool, string cityName)
+            public static IEnumerable<TradeOfferPair> TradeOffersFromCity(ItemDataPool dataPool, string fromCityName,string toCityName)
             {
-                cityName = cityName.ToLower();
+                fromCityName = fromCityName.ToLower();
+                toCityName = toCityName.ToLower();
                 var pairList = new List<TradeOfferPair>();
                 var itms = dataPool.GetItems();
                 foreach (var id in itms)
                 foreach (var itemInCity in dataPool.itemDataPool[id])
                 {
+                    if (!itemInCity.city.Replace(" ","").ToLower().Equals(fromCityName)) continue;
                     if (itemInCity.sell_price_max == 0 || itemInCity.sell_price_min == 0) continue;
-                    if (!itemInCity.city.ToLower().Equals(cityName)) continue;
+                    foreach (var itemInCity2 in dataPool.itemDataPool[id])
+                    {
+                        if (!itemInCity2.city.Replace(" ","").ToLower().Equals(toCityName)) continue;
+                        if (itemInCity2.buy_price_max == 0 || itemInCity2.buy_price_min == 0) continue;
+                        BenefitCalcDifferenceOfCityPrices(itemInCity, itemInCity2, pairList);
+                    }
+
+                    break;
+                }
+
+                return pairList.ToArray();
+            }
+
+            private static void BenefitCalcDifferenceOfCityPrices(ItemDetails itemInCity, ItemDetails itemInCity2, ICollection<TradeOfferPair> pairList)
+            {
+                //todo calculate tax
+                //todo check number of items to sell and buy
+                if (itemInCity.sell_price_max < itemInCity2.buy_price_max)
+                    pairList.Add(new TradeOfferPair(itemInCity, itemInCity2, true));
+                else if (itemInCity.sell_price_min < itemInCity2.buy_price_min)
+                    pairList.Add(new TradeOfferPair(itemInCity, itemInCity2, false));
+            }
+
+            public static IEnumerable<TradeOfferPair> TradeOffersFromCity(ItemDataPool dataPool, string fromCityName)
+            {
+                fromCityName = fromCityName.ToLower();
+                var pairList = new List<TradeOfferPair>();
+                var itms = dataPool.GetItems();
+                foreach (var id in itms)
+                foreach (var itemInCity in dataPool.itemDataPool[id])
+                {
+                    if (!itemInCity.city.Replace(" ","").ToLower().Equals(fromCityName)) continue;
+                    if (itemInCity.sell_price_max == 0 || itemInCity.sell_price_min == 0) continue;
                     foreach (var itemInCity2 in dataPool.itemDataPool[id])
                     {
                         if (itemInCity2.buy_price_max == 0 || itemInCity2.buy_price_min == 0) continue;
-                        //todo calculate tax
-                        //todo check number of items to sell and buy
-                        if (itemInCity.sell_price_max < itemInCity2.buy_price_max)
-                            pairList.Add(new TradeOfferPair(itemInCity, itemInCity2, true));
-                        else if (itemInCity.sell_price_min < itemInCity2.buy_price_min)
-                            pairList.Add(new TradeOfferPair(itemInCity, itemInCity2, false));
+                        BenefitCalcDifferenceOfCityPrices(itemInCity, itemInCity2, pairList);
                     }
 
                     break;
@@ -45,12 +74,7 @@ namespace BlackTrader.DataPool
                     foreach (var itemInCity2 in dataPool.itemDataPool[id])
                     {
                         if (itemInCity2.buy_price_max == 0 || itemInCity2.buy_price_min == 0) continue;
-                        //todo calculate tax
-                        //todo check number of items to sell and buy
-                        if (itemInCity.sell_price_max < itemInCity2.buy_price_max)
-                            pairList.Add(new TradeOfferPair(itemInCity, itemInCity2, true));
-                        else if (itemInCity.sell_price_min < itemInCity2.buy_price_min)
-                            pairList.Add(new TradeOfferPair(itemInCity, itemInCity2, false));
+                        BenefitCalcDifferenceOfCityPrices(itemInCity, itemInCity2, pairList);
                     }
                 }
 
