@@ -3,7 +3,7 @@ using System;
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable InconsistentNaming
 
-namespace BlackTrader
+namespace BlackTrader.Items
 {
     public struct ItemDetails
     {

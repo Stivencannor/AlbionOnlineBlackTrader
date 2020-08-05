@@ -2,7 +2,7 @@
 // ReSharper disable UnusedMember.Global
 // ReSharper disable IdentifierTypo
 
-namespace BlackTrader
+namespace BlackTrader.Items
 {
     public enum ItemIds
     {

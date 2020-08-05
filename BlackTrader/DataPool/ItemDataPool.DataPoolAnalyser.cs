@@ -1,6 +1,7 @@
 using System.Collections.Generic;
+using BlackTrader.Items;
 
-namespace BlackTrader
+namespace BlackTrader.DataPool
 {
     public partial class ItemDataPool
     {

@@ -72,11 +72,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Commands.cs" />
-    <Compile Include="ItemDataPool.cs" />
-    <Compile Include="ItemDataPool.DataPoolAnalyser.cs" />
-    <Compile Include="ItemDetails.cs" />
-    <Compile Include="ItemIds.cs" />
+    <Compile Include="Commands\Commands.cs" />
+    <Compile Include="DataPool\ItemDataPool.cs" />
+    <Compile Include="DataPool\ItemDataPool.DataPoolAnalyser.cs" />
+    <Compile Include="Items\ItemDetails.cs" />
+    <Compile Include="Items\ItemIds.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

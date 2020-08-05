@@ -1,4 +1,4 @@
-namespace BlackTrader
+namespace BlackTrader.Commands
 {
     public enum Commands
     {

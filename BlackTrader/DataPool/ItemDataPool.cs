@@ -4,9 +4,10 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using BlackTrader.Items;
 using Newtonsoft.Json;
 
-namespace BlackTrader
+namespace BlackTrader.DataPool
 {
     public partial class ItemDataPool
     {
