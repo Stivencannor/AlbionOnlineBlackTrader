@@ -74,6 +74,7 @@
   <ItemGroup>
     <Compile Include="Commands.cs" />
     <Compile Include="ItemDataPool.cs" />
+    <Compile Include="ItemDataPool.DataPoolAnalyser.cs" />
     <Compile Include="ItemDetails.cs" />
     <Compile Include="ItemIds.cs" />
     <Compile Include="Program.cs" />

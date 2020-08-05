@@ -2,17 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
 namespace BlackTrader
 {
-    public class ItemDataPool
+    public partial class ItemDataPool
     {
-        private readonly List<string> cities = new List<string>();
+        private const float WaitSecs = 0.5f;
         private readonly HttpClient client = new HttpClient();
-        private readonly Dictionary<ItemIds, ItemDetails[]> itemDataPool = new Dictionary<ItemIds, ItemDetails[]>();
-        public string[] Cities => cities.ToArray();
+        private Dictionary<ItemIds, ItemDetails[]> itemDataPool = new Dictionary<ItemIds, ItemDetails[]>();
 
         public ItemDetails GetItem(ItemIds itemName, string cityName)
         {
@@ -22,6 +22,7 @@ namespace BlackTrader
             return new ItemDetails();
         }
 
+        // ReSharper disable once ReturnTypeCanBeEnumerable.Global
         public ItemIds[] GetItems()
         {
             return itemDataPool.Keys.ToArray();
@@ -32,38 +33,79 @@ namespace BlackTrader
             itemDataPool.Remove(itemName);
         }
 
+        public async Task Update()
+        {
+            var itemsList = GetItems();
+            Console.WriteLine("Updating " + itemsList.Length + " items.it may take long.");
+            var counter = 1;
+            foreach (var itemName in itemsList)
+            {
+                await Update(itemName);
+                Console.WriteLine("[" + ++counter + "/" + itemsList.Length + "] Waiting for " + WaitSecs + " Secs.");
+                Thread.Sleep((int) (WaitSecs * 1000));
+            }
+
+            Console.WriteLine("All of Data pool items updated.");
+        }
+
+        public async Task AddItem(ItemIds[] itemNames)
+        {
+            Console.WriteLine("adding " + itemNames.Length + " items.");
+            var counter = 1;
+            foreach (var itemName in itemNames)
+            {
+                await AddItem(itemName);
+                Console.WriteLine("[" + ++counter + "/" + itemNames.Length + "] Waiting for " + WaitSecs + " Secs.");
+                Thread.Sleep((int) (WaitSecs * 1000));
+            }
+
+            Console.WriteLine("All of items added to pool.");
+        }
+
         public async Task AddItem(ItemIds itemName)
         {
             itemDataPool.Add(itemName, new ItemDetails[0]);
-            await Update(itemName);
+            itemDataPool[itemName] = await GetItemDetailsRequest(itemName);
             Console.WriteLine(itemName + " added to item data pool.");
-        }
-
-        public async Task Update()
-        {
-            foreach (var itemName in itemDataPool.Keys)
-                await Update(itemName);
-            Console.WriteLine("All of Data pool items updated.");
         }
 
         public async Task Update(ItemIds itemName)
         {
-            var itemDetailsRequest = await GetItemDetailsRequest(itemName);
-            itemDataPool[itemName] = itemDetailsRequest;
-            foreach (var item in itemDetailsRequest)
-                if (!cities.Any(city => item.city.Equals(city)))
-                    cities.Add(item.city);
+            itemDataPool[itemName] = await GetItemDetailsRequest(itemName);
             Console.WriteLine(itemName + " item updated at Data pool.");
+        }
+
+        public string[] GetCities()
+        {
+            var cityNames = new List<string>();
+            var items = GetItems();
+            if (itemDataPool.Count == 0 || items.Length == 0) return cityNames.ToArray();
+            //choose item example to get cities that downloaded from albion online project
+            var firstItem = itemDataPool[items[0]];
+            cityNames.AddRange(firstItem.Select(itemAndCity => itemAndCity.city));
+            return cityNames.ToArray();
         }
 
         private async Task<ItemDetails[]> GetItemDetailsRequest(ItemIds itemName)
         {
-            Console.WriteLine("getting" + itemName + " item data from albion online data project.");
+            Console.WriteLine("Getting " + itemName + " item data from albion online data project.");
             var resp = await client.GetAsync("https://www.albion-online-data.com/api/v2/stats/Prices/" +
                                              itemName.ToString().Replace("_AtSign_", "@"));
             resp.EnsureSuccessStatusCode();
+            var itemDetailsRequest = JsonConvert
+                .DeserializeObject<List<ItemDetails>>(await resp.Content.ReadAsStringAsync()).ToArray();
             Console.WriteLine(itemName + " item data Received from albion online data project.");
-            return JsonConvert.DeserializeObject<List<ItemDetails>>(await resp.Content.ReadAsStringAsync()).ToArray();
+            return itemDetailsRequest;
+        }
+
+        public string GetJson()
+        {
+            return JsonConvert.SerializeObject(itemDataPool);
+        }
+
+        public void SetJson(string text)
+        {
+            itemDataPool = JsonConvert.DeserializeObject<Dictionary<ItemIds, ItemDetails[]>>(text);
         }
     }
 }
