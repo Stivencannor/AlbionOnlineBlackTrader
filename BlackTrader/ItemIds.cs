@@ -6,6 +6,7 @@ namespace BlackTrader
 {
     public enum ItemIds
     {
+        None,
         UNIQUE_HIDEOUT,
         T1_FARM_CARROT_SEED,
         T2_FARM_BEAN_SEED,
