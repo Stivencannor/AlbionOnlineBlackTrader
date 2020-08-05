@@ -48,6 +48,7 @@ at this Application you have Item DataPool that can store your received items da
 * Update [Item ID] to update only [Item ID] at data pool.
 * TradeOffers to analyse data pool and get offers for a good trade at game.
 * TradeOffers [City Name] to get offers from [City Name].
+* TradeOffers [From City Name] [To City Name] to get offers from [City Name] to [From City Name].
 
 #### Example Offer:
 ```
