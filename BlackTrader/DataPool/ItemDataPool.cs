@@ -34,14 +34,14 @@ namespace BlackTrader.DataPool
             itemDataPool.Remove(itemName);
         }
 
-        public async Task Update()
+        public void Update()
         {
             var itemsList = GetItems();
             Console.WriteLine("Updating " + itemsList.Length + " items. it may take long.");
             var counter = 1;
             foreach (var itemName in itemsList)
             {
-                await Update(itemName);
+                Update(itemName);
                 Console.WriteLine("[" + ++counter + "/" + itemsList.Length + "] Waiting for " + WaitSecs + " Secs.");
                 Thread.Sleep((int) (WaitSecs * 1000));
             }
@@ -49,26 +49,27 @@ namespace BlackTrader.DataPool
             Console.WriteLine("All of Data pool items updated.");
         }
 
-        public async Task Update(ItemIds[] itemNames)
+        public void Update(ItemIds[] itemNames)
         {
             Console.WriteLine("Updating " + itemNames.Length + " items.");
             var counter = 1;
             foreach (var itemName in itemNames)
             {
-                await Update(itemName);
+                Update(itemName);
                 Console.WriteLine("[" + ++counter + "/" + itemNames.Length + "] Waiting for " + WaitSecs + " Secs.");
                 Thread.Sleep((int) (WaitSecs * 1000));
             }
 
             Console.WriteLine("All of items added to pool.");
         }
-        public async Task AddItem(ItemIds[] itemNames)
+
+        public void AddItem(ItemIds[] itemNames)
         {
             Console.WriteLine("adding " + itemNames.Length + " items.");
             var counter = 1;
             foreach (var itemName in itemNames)
             {
-                await AddItem(itemName);
+                AddItem(itemName);
                 Console.WriteLine("[" + ++counter + "/" + itemNames.Length + "] Waiting for " + WaitSecs + " Secs.");
                 Thread.Sleep((int) (WaitSecs * 1000));
             }
@@ -76,16 +77,20 @@ namespace BlackTrader.DataPool
             Console.WriteLine("All of items added to pool.");
         }
 
-        public async Task AddItem(ItemIds itemName)
+        public void AddItem(ItemIds itemName)
         {
+            var itemDetailsRequest = GetItemDetailsRequest(itemName);
+            itemDetailsRequest.Wait();
             itemDataPool.Add(itemName, new ItemDetails[0]);
-            itemDataPool[itemName] = await GetItemDetailsRequest(itemName);
+            itemDataPool[itemName] = itemDetailsRequest.Result;
             Console.WriteLine(itemName + " added to item data pool.");
         }
 
-        public async Task Update(ItemIds itemName)
+        public void Update(ItemIds itemName)
         {
-            itemDataPool[itemName] = await GetItemDetailsRequest(itemName);
+            var itemDetailsRequest = GetItemDetailsRequest(itemName);
+            itemDetailsRequest.Wait();
+            itemDataPool[itemName] = itemDetailsRequest.Result;
             Console.WriteLine(itemName + " item updated at Data pool.");
         }
 
