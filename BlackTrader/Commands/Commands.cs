@@ -17,6 +17,8 @@ namespace BlackTrader.Commands
         Save,
         Load,
         Update,
-        TradeOffers
+        TradeOffers,
+        WhereSell,
+        WhereBuy
     }
 }

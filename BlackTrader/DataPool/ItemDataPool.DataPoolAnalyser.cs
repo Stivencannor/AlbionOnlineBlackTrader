@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using BlackTrader.Items;
@@ -9,6 +10,40 @@ namespace BlackTrader.DataPool
     {
         public static partial class DataPoolAnalyser
         {
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="dataPool"></param>
+            /// <param name="item"></param>
+            /// <returns>city names</returns>
+            public static IEnumerable<ItemDetails> WhereSell(ItemDataPool dataPool, ItemIds item)
+            {
+                if (!dataPool.itemDataPool.ContainsKey(item))
+                {
+                    Console.WriteLine("This Item Not exist at data pool.");
+                    return new ItemDetails[0];
+                }
+
+                var itemAndCities = new List<ItemDetails>(dataPool.itemDataPool[item]);
+                itemAndCities.RemoveAll(details => details.buy_price_min == 0);
+                itemAndCities.Sort((details, itemDetails) => details.buy_price_min - itemDetails.buy_price_min);
+                return itemAndCities.ToArray();
+            }
+
+            public static IEnumerable<ItemDetails> WhereBuy(ItemDataPool dataPool, ItemIds item)
+            {
+                if (!dataPool.itemDataPool.ContainsKey(item))
+                {
+                    Console.WriteLine("This Item Not exist at data pool.");
+                    return new ItemDetails[0];
+                }
+
+                var itemAndCities = new List<ItemDetails>(dataPool.itemDataPool[item]);
+                itemAndCities.RemoveAll(details => details.sell_price_min == 0);
+                itemAndCities.Sort((details, itemDetails) => itemDetails.sell_price_min - details.sell_price_min);
+                return itemAndCities.ToArray();
+            }
+
             public static IEnumerable<TradeOfferPair> TradeOffersFromCity(ItemDataPool dataPool,
                 [Optional] string fromCityName,
                 [Optional] string toCityName)
@@ -47,6 +82,7 @@ namespace BlackTrader.DataPool
                 pairList.AddRange(pairListStarred);
                 return pairList.ToArray();
             }
+
         }
     }
 }
