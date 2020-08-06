@@ -226,7 +226,7 @@ namespace BlackTrader
                         var itemIds = DataPool?.GetItems();
                         foreach (var itm in itemIds)
                             Console.Write(itm + ", ");
-                        Console.WriteLine("");
+                        Console.WriteLine("Found "+itemIds.Length+" items.");
                         break;
                     case Commands.Commands.WhereSell:
                         if (cmdData.Length < 2)
