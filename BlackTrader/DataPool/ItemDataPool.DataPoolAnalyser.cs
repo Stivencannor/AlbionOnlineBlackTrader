@@ -31,7 +31,12 @@ namespace BlackTrader.DataPool
                         if (!string.IsNullOrWhiteSpace(toCityName) &&
                             !itemInCity2.city.Replace(" ", "").ToLower().Equals(toCityName)) continue;
                         if (itemInCity2.buy_price_max == 0 || itemInCity2.buy_price_min == 0) continue;
-                        BenefitCalcDifferenceOfCityPrices(itemInCity, itemInCity2, pairList, pairListStarred);
+                        //todo calculate tax
+                        //todo check number of items to sell and buy
+                        if (itemInCity.sell_price_max < itemInCity2.buy_price_max)
+                            pairListStarred.Add(new TradeOfferPair(itemInCity, itemInCity2, true));
+                        else if (itemInCity.sell_price_min < itemInCity2.buy_price_min)
+                            pairList.Add(new TradeOfferPair(itemInCity, itemInCity2, false));
                     }
 
                     break;
@@ -41,17 +46,6 @@ namespace BlackTrader.DataPool
                 pairListStarred.Sort((pair, offerPair) => (pair.MaxDistancePrice() - offerPair.MaxDistancePrice()));
                 pairList.AddRange(pairListStarred);
                 return pairList.ToArray();
-            }
-
-            private static void BenefitCalcDifferenceOfCityPrices(ItemDetails itemInCity, ItemDetails itemInCity2,
-                ICollection<TradeOfferPair> pairList, ICollection<TradeOfferPair> pairListStarred)
-            {
-                //todo calculate tax
-                //todo check number of items to sell and buy
-                if (itemInCity.sell_price_max < itemInCity2.buy_price_max)
-                    pairListStarred.Add(new TradeOfferPair(itemInCity, itemInCity2, true));
-                else if (itemInCity.sell_price_min < itemInCity2.buy_price_min)
-                    pairList.Add(new TradeOfferPair(itemInCity, itemInCity2, false));
             }
         }
     }
