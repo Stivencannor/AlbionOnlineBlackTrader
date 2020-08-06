@@ -37,7 +37,7 @@ namespace BlackTrader.DataPool
         public async Task Update()
         {
             var itemsList = GetItems();
-            Console.WriteLine("Updating " + itemsList.Length + " items.it may take long.");
+            Console.WriteLine("Updating " + itemsList.Length + " items. it may take long.");
             var counter = 1;
             foreach (var itemName in itemsList)
             {
@@ -49,6 +49,19 @@ namespace BlackTrader.DataPool
             Console.WriteLine("All of Data pool items updated.");
         }
 
+        public async Task Update(ItemIds[] itemNames)
+        {
+            Console.WriteLine("Updating " + itemNames.Length + " items.");
+            var counter = 1;
+            foreach (var itemName in itemNames)
+            {
+                await Update(itemName);
+                Console.WriteLine("[" + ++counter + "/" + itemNames.Length + "] Waiting for " + WaitSecs + " Secs.");
+                Thread.Sleep((int) (WaitSecs * 1000));
+            }
+
+            Console.WriteLine("All of items added to pool.");
+        }
         public async Task AddItem(ItemIds[] itemNames)
         {
             Console.WriteLine("adding " + itemNames.Length + " items.");

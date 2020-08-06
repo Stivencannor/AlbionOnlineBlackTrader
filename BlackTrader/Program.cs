@@ -26,6 +26,7 @@ namespace BlackTrader
                 string[] itemsNamesList;
                 ItemIds itemName;
                 string lower;
+                List<ItemIds> listOfFoundItems;
                 switch (cmd)
                 {
                     case Commands.Commands.Help:
@@ -56,11 +57,27 @@ namespace BlackTrader
                         itemsNamesList = Enum.GetNames(typeof(ItemIds));
                         Console.WriteLine("Items that contain " + cmdData[1] + " :");
                         lower = cmdData[1].ToLower();
-                        var listOfFoundItems = new List<ItemIds>();
+                        listOfFoundItems = new List<ItemIds>();
                         foreach (var itmName in itemsNamesList)
                             if (itmName.ToLower().Contains(lower) && Enum.TryParse<ItemIds>(itmName, out var itmId))
                                 listOfFoundItems.Add(itmId);
                         DataPool?.AddItem(listOfFoundItems.ToArray());
+                        break;
+                    case Commands.Commands.SearchAndUpdateItem:
+                        if (cmdData.Length < 2)
+                        {
+                            Console.WriteLine(@"Usage is: " + Commands.Commands.SearchAndAddItem + " ItemId");
+                            break;
+                        }
+
+                        itemsNamesList = Enum.GetNames(typeof(ItemIds));
+                        Console.WriteLine("Items that contain " + cmdData[1] + " :");
+                        lower = cmdData[1].ToLower();
+                        listOfFoundItems = new List<ItemIds>();
+                        foreach (var itmName in itemsNamesList)
+                            if (itmName.ToLower().Contains(lower) && Enum.TryParse<ItemIds>(itmName, out var itmId))
+                                listOfFoundItems.Add(itmId);
+                        DataPool?.Update(listOfFoundItems.ToArray());
                         break;
                     case Commands.Commands.SearchItem:
                         if (cmdData.Length < 2)
