@@ -109,7 +109,7 @@ namespace BlackTrader
                             break;
                         }
 
-                        if (Enum.TryParse(cmdData[1], true, out itemName))
+                        if (Enum.TryParse(cmdData[1].Replace("@","_AtSign_"), true, out itemName))
                             DataPool?.AddItem(itemName);
                         else
                             Console.WriteLine(cmdData[1] + " Item not Exist. please search id by " +
@@ -126,7 +126,7 @@ namespace BlackTrader
                             break;
                         }
 
-                        if (Enum.TryParse(cmdData[1], true, out itemName))
+                        if (Enum.TryParse(cmdData[1].Replace("@","_AtSign_"), true, out itemName))
                             DataPool?.RemoveItem(itemName);
                         else
                             Console.WriteLine(cmdData[1] + " Item not Exist. please search id by " +
@@ -141,7 +141,7 @@ namespace BlackTrader
                             break;
                         }
 
-                        if (Enum.TryParse(cmdData[1], true, out itemName))
+                        if (Enum.TryParse(cmdData[1].Replace("@","_AtSign_"), true, out itemName))
                             DataPool?.Update(itemName);
                         else
                             Console.WriteLine(cmdData[1] + " Item not Exist. please search id by " +
@@ -236,7 +236,7 @@ namespace BlackTrader
                         }
 
                         Console.WriteLine("best prices is:");
-                        if (Enum.TryParse<ItemIds>(cmdData[1], true, out var itmId2))
+                        if (Enum.TryParse<ItemIds>(cmdData[1].Replace("@","_AtSign_"), true, out var itmId2))
                         {
                             var items = ItemDataPool.DataPoolAnalyser.WhereSell(DataPool, itmId2);
                             foreach (var itm in items)
@@ -253,7 +253,7 @@ namespace BlackTrader
                         }
 
                         Console.WriteLine("best prices is:");
-                        if (Enum.TryParse<ItemIds>(cmdData[1], true, out var itmId3))
+                        if (Enum.TryParse<ItemIds>(cmdData[1].Replace("@","_AtSign_"), true, out var itmId3))
                         {
                             var items = ItemDataPool.DataPoolAnalyser.WhereBuy(DataPool, itmId3);
                             foreach (var itm in items)

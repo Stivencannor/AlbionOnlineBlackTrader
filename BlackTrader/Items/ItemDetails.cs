@@ -11,7 +11,7 @@ namespace BlackTrader.Items
         {
             get
             {
-                Enum.TryParse<ItemIds>(item_id, out var enm);
+                Enum.TryParse<ItemIds>(item_id.Replace("@","_AtSign_"), out var enm);
                 return enm;
             }
         }

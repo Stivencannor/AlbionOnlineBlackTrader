@@ -33,12 +33,12 @@ namespace BlackTrader.DataPool
 
                 public int MaxDistancePrice()
                 {
-                    return Math.Abs(toThisItem.buy_price_max - toThisItem.sell_price_max);
+                    return Math.Abs(toThisItem.buy_price_max - fromThisItem.sell_price_max);
                 }
 
                 public int MinDistancePrice()
                 {
-                    return Math.Abs(toThisItem.buy_price_min - toThisItem.sell_price_min);
+                    return Math.Abs(toThisItem.buy_price_min - fromThisItem.sell_price_min);
                 }
 
                 public override string ToString()
