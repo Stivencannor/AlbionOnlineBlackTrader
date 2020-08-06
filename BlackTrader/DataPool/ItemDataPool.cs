@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Threading;
 using System.Threading.Tasks;
 using BlackTrader.Items;
 using Newtonsoft.Json;
@@ -11,7 +10,6 @@ namespace BlackTrader.DataPool
 {
     public partial class ItemDataPool
     {
-        private const float WaitSecs = 0.5f;
         private readonly HttpClient client = new HttpClient();
         private Dictionary<ItemIds, ItemDetails[]> itemDataPool = new Dictionary<ItemIds, ItemDetails[]>();
 
@@ -36,53 +34,34 @@ namespace BlackTrader.DataPool
 
         public void Update()
         {
-            var itemsList = GetItems();
-            Console.WriteLine("Updating " + itemsList.Length + " items. it may take long.");
-            var counter = 1;
-            foreach (var itemName in itemsList)
-            {
-                Update(itemName);
-                Console.WriteLine("[" + ++counter + "/" + itemsList.Length + "] Waiting for " + WaitSecs + " Secs.");
-                Thread.Sleep((int) (WaitSecs * 1000));
-            }
-
-            Console.WriteLine("All of Data pool items updated.");
+            Update(GetItems());
         }
 
         public void Update(ItemIds[] itemNames)
         {
             Console.WriteLine("Updating " + itemNames.Length + " items.");
-            var counter = 1;
-            foreach (var itemName in itemNames)
-            {
-                Update(itemName);
-                Console.WriteLine("[" + ++counter + "/" + itemNames.Length + "] Waiting for " + WaitSecs + " Secs.");
-                Thread.Sleep((int) (WaitSecs * 1000));
-            }
-
-            Console.WriteLine("All of items added to pool.");
+            var itemDetailsRequest = GetItemDetailsRequest(itemNames);
+            itemDetailsRequest.Wait();
+            foreach (var key in itemDetailsRequest.Result.Keys)
+                itemDataPool[key] = itemDetailsRequest.Result[key];
+            Console.WriteLine("All of " + itemNames.Length + " items updated.");
         }
 
         public void AddItem(ItemIds[] itemNames)
         {
-            Console.WriteLine("adding " + itemNames.Length + " items.");
-            var counter = 1;
-            foreach (var itemName in itemNames)
-            {
-                AddItem(itemName);
-                Console.WriteLine("[" + ++counter + "/" + itemNames.Length + "] Waiting for " + WaitSecs + " Secs.");
-                Thread.Sleep((int) (WaitSecs * 1000));
-            }
-
-            Console.WriteLine("All of items added to pool.");
+            Console.WriteLine("Adding " + itemNames.Length + " items.");
+            var itemDetailsRequest = GetItemDetailsRequest(itemNames);
+            itemDetailsRequest.Wait();
+            foreach (var key in itemDetailsRequest.Result.Keys)
+                itemDataPool.Add(key, itemDetailsRequest.Result[key]);
+            Console.WriteLine("All of " + itemNames.Length + " items added to pool.");
         }
 
         public void AddItem(ItemIds itemName)
         {
             var itemDetailsRequest = GetItemDetailsRequest(itemName);
             itemDetailsRequest.Wait();
-            itemDataPool.Add(itemName, new ItemDetails[0]);
-            itemDataPool[itemName] = itemDetailsRequest.Result;
+            itemDataPool.Add(itemName, itemDetailsRequest.Result[itemName]);
             Console.WriteLine(itemName + " added to item data pool.");
         }
 
@@ -90,7 +69,7 @@ namespace BlackTrader.DataPool
         {
             var itemDetailsRequest = GetItemDetailsRequest(itemName);
             itemDetailsRequest.Wait();
-            itemDataPool[itemName] = itemDetailsRequest.Result;
+            itemDataPool[itemName] = itemDetailsRequest.Result[itemName];
             Console.WriteLine(itemName + " item updated at Data pool.");
         }
 
@@ -105,16 +84,36 @@ namespace BlackTrader.DataPool
             return cityNames.ToArray();
         }
 
-        private async Task<ItemDetails[]> GetItemDetailsRequest(ItemIds itemName)
+        private const int LimitItemsForWebRequest = 100;
+
+        private async Task<Dictionary<ItemIds, ItemDetails[]>> GetItemDetailsRequest(params ItemIds[] itemNames)
         {
-            Console.WriteLine("Getting " + itemName + " item data from albion online data project.");
-            var resp = await client.GetAsync("https://www.albion-online-data.com/api/v2/stats/Prices/" +
-                                             itemName.ToString().Replace("_AtSign_", "@"));
-            resp.EnsureSuccessStatusCode();
-            var itemDetailsRequest = JsonConvert
-                .DeserializeObject<List<ItemDetails>>(await resp.Content.ReadAsStringAsync()).ToArray();
-            Console.WriteLine(itemName + " item data Received from albion online data project.");
-            return itemDetailsRequest;
+            return await GetItemsDetailsRequest(itemNames);
+        }
+        private async Task<Dictionary<ItemIds, ItemDetails[]>> GetItemsDetailsRequest(
+            IReadOnlyCollection<ItemIds> itemNames)
+        {
+            var namesList = itemNames.ToList();
+            Console.WriteLine("Getting " + itemNames.Count + " items data from albion online data project.");
+            var globalList = new Dictionary<ItemIds, ItemDetails[]>();
+            //dedicate itemNames to limit number
+            for (var index = 0; index < itemNames.Count; index += LimitItemsForWebRequest)
+            {
+                var toCount = Math.Min(LimitItemsForWebRequest, itemNames.Count - index);
+                var stringOfItemsList = namesList
+                    .GetRange(index, toCount).Aggregate("",
+                        (current, itm) => current + (itm.ToString().Replace("_AtSign_", "@") + ",")).Trim(',');
+                var resp = await client.GetAsync("https://www.albion-online-data.com/api/v2/stats/Prices/" +
+                                                 stringOfItemsList);
+                resp.EnsureSuccessStatusCode();
+                var result = JsonConvert.DeserializeObject<List<ItemDetails>>(await resp.Content.ReadAsStringAsync());
+                foreach (var itm in result.Where(itm => !globalList.ContainsKey(itm.ItemName)))
+                    globalList.Add(itm.ItemName, result.FindAll(details => details.item_id.Equals(itm.item_id)).ToArray());
+                Console.WriteLine("Received " + (index + toCount) + "/" + itemNames.Count + " Items.");
+            }
+
+            Console.WriteLine(itemNames.Count + " items data Received from albion online data project.");
+            return globalList;
         }
 
         public string GetJson()

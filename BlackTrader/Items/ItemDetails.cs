@@ -7,6 +7,15 @@ namespace BlackTrader.Items
 {
     public struct ItemDetails
     {
+        public ItemIds ItemName
+        {
+            get
+            {
+                Enum.TryParse<ItemIds>(item_id, out var enm);
+                return enm;
+            }
+        }
+
         public string item_id { get; set; }
         public string city { get; set; }
         public int quality { get; set; }
