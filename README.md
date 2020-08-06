@@ -8,6 +8,7 @@ BlackTrader is a project to Compare Albion Online city prices bases on Albion on
 
   - Add and update item prices data by searching at word in Item IDs.
   - get trade offers from special city.
+  - you can sell your items to best places or but them with lower prices.
 
 
 You can also:
@@ -49,6 +50,9 @@ at this Application you have Item DataPool that can store your received items da
 * TradeOffers to analyse data pool and get offers for a good trade at game.
 * TradeOffers [City Name] to get offers from [City Name].
 * TradeOffers [From City Name] [To City Name] to get offers from [City Name] to [From City Name].
+* WhereSell [ItemID] to see the best places to sell an item.
+* WhereBuy [ItemID] to see the best places to buy an item.
+
 
 #### Example Offer:
 ```
