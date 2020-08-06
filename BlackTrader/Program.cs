@@ -160,8 +160,9 @@ namespace BlackTrader
 
                         if (cmdData.Length == 3)
                         {
-                            Console.WriteLine("Trade offers for " + cmdData[1] + " city to "+cmdData[2]+" city:");
-                            PrintPairs(ItemDataPool.DataPoolAnalyser.TradeOffersFromCity(DataPool,cmdData[1],cmdData[2]));
+                            Console.WriteLine("Trade offers for " + cmdData[1] + " city to " + cmdData[2] + " city:");
+                            PrintPairs(ItemDataPool.DataPoolAnalyser.TradeOffersFromCity(DataPool, cmdData[1],
+                                cmdData[2]));
                             Console.WriteLine("Using this data is a big risk. not calculated number of items.");
                             break;
                         }
@@ -172,6 +173,7 @@ namespace BlackTrader
                             Console.WriteLine("Using this data is a big risk. not calculated number of items.");
                             break;
                         }
+
                         Console.WriteLine("Trade offers for All cities:");
                         PrintPairs(ItemDataPool.DataPoolAnalyser.TradeOffersFromCity(DataPool));
                         Console.WriteLine("Using this data is a big risk. not calculated number of items.");
@@ -225,6 +227,40 @@ namespace BlackTrader
                         foreach (var itm in itemIds)
                             Console.Write(itm + ", ");
                         Console.WriteLine("");
+                        break;
+                    case Commands.Commands.WhereSell:
+                        if (cmdData.Length < 2)
+                        {
+                            Console.WriteLine(@"Usage is: " + Commands.Commands.WhereSell + " ItemID");
+                            break;
+                        }
+
+                        Console.WriteLine("best prices is:");
+                        if (Enum.TryParse<ItemIds>(cmdData[1], true, out var itmId2))
+                        {
+                            var items = ItemDataPool.DataPoolAnalyser.WhereSell(DataPool, itmId2);
+                            foreach (var itm in items)
+                                Console.WriteLine("You can sell " + itm.item_id + " to " + itm.city + " over " +
+                                                  itm.buy_price_min);
+                        }
+
+                        break;
+                    case Commands.Commands.WhereBuy:
+                        if (cmdData.Length < 2)
+                        {
+                            Console.WriteLine(@"Usage is: " + Commands.Commands.WhereBuy + " ItemID");
+                            break;
+                        }
+
+                        Console.WriteLine("best prices is:");
+                        if (Enum.TryParse<ItemIds>(cmdData[1], true, out var itmId3))
+                        {
+                            var items = ItemDataPool.DataPoolAnalyser.WhereBuy(DataPool, itmId3);
+                            foreach (var itm in items)
+                                Console.WriteLine("You can buy " + itm.item_id + " from " + itm.city + " over " +
+                                                  itm.sell_price_min);
+                        }
+
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
