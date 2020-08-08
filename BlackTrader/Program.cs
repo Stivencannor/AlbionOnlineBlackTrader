@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using BlackTrader.Commands;
+using BlackTrader.Config;
 using BlackTrader.DataPool;
 using BlackTrader.Items;
 using Console = System.Console;
@@ -12,9 +13,11 @@ namespace BlackTrader
     internal static class Program
     {
         private static readonly ItemDataPool DataPool = new ItemDataPool();
+        
 
         public static void Main(string[] args)
         {
+            Configs.Load();
             ConsoleCommands cmd;
             do
             {
@@ -287,8 +290,8 @@ namespace BlackTrader
 
                                     if (int.TryParse(cmdData[2], out var hours))
                                     {
-                                        Console.WriteLine(nameof(ItemDataPool.DataPoolAnalyser.UpdateDateHoursLimit)+" changed from "+ItemDataPool.DataPoolAnalyser.UpdateDateHoursLimit+" to "+hours+".");
-                                        ItemDataPool.DataPoolAnalyser.UpdateDateHoursLimit = hours;
+                                        Console.WriteLine(nameof(Configs.UpdateDateHoursLimit)+" changed from "+Configs.UpdateDateHoursLimit+" to "+hours+".");
+                                        Configs.UpdateDateHoursLimit = hours;
                                     }
                                     else
                                         Console.WriteLine("Cant Detect Hours Number, Please enter integer number!");
@@ -296,6 +299,7 @@ namespace BlackTrader
                                 default:
                                     throw new ArgumentOutOfRangeException();
                             }
+                        Configs.Save();
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();

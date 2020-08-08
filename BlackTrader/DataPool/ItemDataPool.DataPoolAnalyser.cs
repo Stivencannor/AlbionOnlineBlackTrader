@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using BlackTrader.Config;
 using BlackTrader.Items;
 
 namespace BlackTrader.DataPool
@@ -9,8 +10,6 @@ namespace BlackTrader.DataPool
     {
         public static partial class DataPoolAnalyser
         {
-            public static int UpdateDateHoursLimit = 24;
-
             /// <summary>
             /// </summary>
             /// <param name="dataPool"></param>
@@ -27,8 +26,8 @@ namespace BlackTrader.DataPool
                 var itemAndCities = new List<ItemDetails>(dataPool.itemDataPool[item]);
                 itemAndCities.RemoveAll(details => details.buy_price_max == 0);
                 var removeAll =
-                    itemAndCities.RemoveAll(details => details.MaxBuyDateDiff.TotalHours > UpdateDateHoursLimit);
-                Console.WriteLine("Removed " + removeAll + " Old Date Items. (" + UpdateDateHoursLimit + " Hours)");
+                    itemAndCities.RemoveAll(details => details.MaxBuyDateDiff.TotalHours > Configs.UpdateDateHoursLimit);
+                Console.WriteLine("Removed " + removeAll + " Old Date Items. (" + Configs.UpdateDateHoursLimit + " Hours)");
                 itemAndCities.Sort((details, itemDetails) => details.buy_price_max - itemDetails.buy_price_max);
                 return itemAndCities.ToArray();
             }
@@ -44,8 +43,8 @@ namespace BlackTrader.DataPool
                 var itemAndCities = new List<ItemDetails>(dataPool.itemDataPool[item]);
                 itemAndCities.RemoveAll(details => details.sell_price_min == 0);
                 var removeAll =
-                    itemAndCities.RemoveAll(details => details.MinSellDateDiff.TotalHours > UpdateDateHoursLimit);
-                Console.WriteLine("Removed " + removeAll + " Old Date Items. (" + UpdateDateHoursLimit + " Hours)");
+                    itemAndCities.RemoveAll(details => details.MinSellDateDiff.TotalHours > Configs.UpdateDateHoursLimit);
+                Console.WriteLine("Removed " + removeAll + " Old Date Items. (" + Configs.UpdateDateHoursLimit + " Hours)");
                 itemAndCities.Sort((details, itemDetails) => itemDetails.sell_price_min - details.sell_price_min);
                 return itemAndCities.ToArray();
             }
@@ -84,12 +83,12 @@ namespace BlackTrader.DataPool
                 }
 
                 var removeAll = pairList.RemoveAll(details =>
-                    details.FromThisItem.MinSellDateDiff.TotalHours > UpdateDateHoursLimit ||
-                    details.ToThisItem.MinBuyDateDiff.TotalHours > UpdateDateHoursLimit);
+                    details.FromThisItem.MinSellDateDiff.TotalHours > Configs.UpdateDateHoursLimit ||
+                    details.ToThisItem.MinBuyDateDiff.TotalHours > Configs.UpdateDateHoursLimit);
                 removeAll += pairListStarred.RemoveAll(details =>
-                    details.FromThisItem.MaxSellDateDiff.TotalHours > UpdateDateHoursLimit ||
-                    details.ToThisItem.MaxBuyDateDiff.TotalHours > UpdateDateHoursLimit);
-                Console.WriteLine("Removed " + removeAll + " Old Date Items. (" + UpdateDateHoursLimit + " Hours)");
+                    details.FromThisItem.MaxSellDateDiff.TotalHours > Configs.UpdateDateHoursLimit ||
+                    details.ToThisItem.MaxBuyDateDiff.TotalHours > Configs.UpdateDateHoursLimit);
+                Console.WriteLine("Removed " + removeAll + " Old Date Items. (" + Configs.UpdateDateHoursLimit + " Hours)");
                 pairList.Sort((pair, offerPair) => pair.MinDistancePrice() - offerPair.MinDistancePrice());
                 pairListStarred.Sort((pair, offerPair) => pair.MaxDistancePrice() - offerPair.MaxDistancePrice());
                 pairList.AddRange(pairListStarred);
