@@ -25,10 +25,15 @@ namespace BlackTrader.DataPool
                 }
 
                 var itemAndCities = new List<ItemDetails>(dataPool.itemDataPool[item]);
-                itemAndCities.RemoveAll(details => details.buy_price_min == 0);
-                itemAndCities.Sort((details, itemDetails) => details.buy_price_min - itemDetails.buy_price_min);
+                itemAndCities.RemoveAll(details => details.buy_price_max == 0);
+                var removeAll =
+                    itemAndCities.RemoveAll(details => details.MaxBuyDateDiff.TotalHours > UpdateDateHoursLimit);
+                Console.WriteLine("Removed " + removeAll + " Old Date Items. (" + UpdateDateHoursLimit + " Hours)");
+                itemAndCities.Sort((details, itemDetails) => details.buy_price_max - itemDetails.buy_price_max);
                 return itemAndCities.ToArray();
             }
+
+            private const int UpdateDateHoursLimit = 24;
 
             public static IEnumerable<ItemDetails> WhereBuy(ItemDataPool dataPool, ItemIds item)
             {
@@ -40,6 +45,9 @@ namespace BlackTrader.DataPool
 
                 var itemAndCities = new List<ItemDetails>(dataPool.itemDataPool[item]);
                 itemAndCities.RemoveAll(details => details.sell_price_min == 0);
+                var removeAll =
+                    itemAndCities.RemoveAll(details => details.MinSellDateDiff.TotalHours > UpdateDateHoursLimit);
+                Console.WriteLine("Removed " + removeAll + " Old Date Items. (" + UpdateDateHoursLimit + " Hours)");
                 itemAndCities.Sort((details, itemDetails) => itemDetails.sell_price_min - details.sell_price_min);
                 return itemAndCities.ToArray();
             }
@@ -77,6 +85,13 @@ namespace BlackTrader.DataPool
                     break;
                 }
 
+                var removeAll = pairList.RemoveAll(details =>
+                    details.FromThisItem.MinSellDateDiff.TotalHours > UpdateDateHoursLimit ||
+                    details.ToThisItem.MinBuyDateDiff.TotalHours > UpdateDateHoursLimit);
+                removeAll += pairListStarred.RemoveAll(details =>
+                    details.FromThisItem.MaxSellDateDiff.TotalHours > UpdateDateHoursLimit ||
+                    details.ToThisItem.MaxBuyDateDiff.TotalHours > UpdateDateHoursLimit);
+                Console.WriteLine("Removed " + removeAll + " Old Date Items. (" + UpdateDateHoursLimit + " Hours)");
                 pairList.Sort((pair, offerPair) => (pair.MinDistancePrice() - offerPair.MinDistancePrice()));
                 pairListStarred.Sort((pair, offerPair) => (pair.MaxDistancePrice() - offerPair.MaxDistancePrice()));
                 pairList.AddRange(pairListStarred);

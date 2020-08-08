@@ -12,12 +12,12 @@ namespace BlackTrader.DataPool
                 /// <summary>
                 ///     buy from here
                 /// </summary>
-                private readonly ItemDetails fromThisItem;
+                public readonly ItemDetails FromThisItem;
 
                 /// <summary>
                 ///     sell to here
                 /// </summary>
-                private readonly ItemDetails toThisItem;
+                public readonly ItemDetails ToThisItem;
 
                 /// <summary>
                 ///     if its starred, its so valuable to trade and it is based on max price
@@ -26,28 +26,28 @@ namespace BlackTrader.DataPool
 
                 public TradeOfferPair(ItemDetails fromThisItem, ItemDetails toThisItem, bool starred)
                 {
-                    this.fromThisItem = fromThisItem;
-                    this.toThisItem = toThisItem;
+                    this.FromThisItem = fromThisItem;
+                    this.ToThisItem = toThisItem;
                     this.starred = starred;
                 }
 
                 public int MaxDistancePrice()
                 {
-                    return Math.Abs(toThisItem.buy_price_max - fromThisItem.sell_price_max);
+                    return Math.Abs(ToThisItem.buy_price_max - FromThisItem.sell_price_max);
                 }
 
                 public int MinDistancePrice()
                 {
-                    return Math.Abs(toThisItem.buy_price_min - fromThisItem.sell_price_min);
+                    return Math.Abs(ToThisItem.buy_price_min - FromThisItem.sell_price_min);
                 }
 
                 public override string ToString()
                 {
-                    return (starred ? "*" : "") + " you can buy " + fromThisItem.item_id + " from " +
-                           fromThisItem.city + " for " +
-                           (starred ? fromThisItem.sell_price_max : fromThisItem.sell_price_min) + " and sell to " +
-                           toThisItem.city + " for " +
-                           (starred ? toThisItem.buy_price_max : toThisItem.buy_price_min) + " then profit over :" +
+                    return (starred ? "*" : "") + " you can buy " + FromThisItem.item_id + " from " +
+                           FromThisItem.city + " for " +
+                           (starred ? FromThisItem.sell_price_max : FromThisItem.sell_price_min) + " ("+(starred ? FromThisItem.MaxSellDateDiffString : FromThisItem.MinSellDateDiffString)+") and sell to " +
+                           ToThisItem.city + " for " +
+                           (starred ? ToThisItem.buy_price_max : ToThisItem.buy_price_min) + "  ("+(starred ? ToThisItem.MaxBuyDateDiffString : ToThisItem.MinBuyDateDiffString)+") ,then profit over :" +
                            (starred ? MaxDistancePrice() : MinDistancePrice());
                 }
             }
