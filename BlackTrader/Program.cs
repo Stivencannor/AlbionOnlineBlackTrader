@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using BlackTrader.Commands;
 using BlackTrader.DataPool;
 using BlackTrader.Items;
+using Console = System.Console;
 
 namespace BlackTrader
 {
@@ -13,7 +15,7 @@ namespace BlackTrader
 
         public static void Main(string[] args)
         {
-            Commands.Commands cmd;
+            ConsoleCommands cmd;
             do
             {
                 Console.WriteLine("Please Enter your Command:");
@@ -29,28 +31,28 @@ namespace BlackTrader
                 List<ItemIds> listOfFoundItems;
                 switch (cmd)
                 {
-                    case Commands.Commands.Help:
-                    case Commands.Commands.None:
+                    case ConsoleCommands.Help:
+                    case ConsoleCommands.None:
                         Console.WriteLine("Please Enter a Command:");
-                        var helpCmdList = Enum.GetNames(typeof(Commands.Commands));
+                        var helpCmdList = Enum.GetNames(typeof(ConsoleCommands));
                         foreach (var hCmd in helpCmdList)
-                            Console.WriteLine(hCmd);
+                            Console.WriteLine("- "+hCmd);
                         break;
-                    case Commands.Commands.End:
-                    case Commands.Commands.Exit:
+                    case ConsoleCommands.End:
+                    case ConsoleCommands.Exit:
                         Console.WriteLine("Ending Program. :D");
                         break;
-                    case Commands.Commands.ItemsList:
+                    case ConsoleCommands.ItemsList:
                         Console.WriteLine("Items List:");
                         itemsNamesList = Enum.GetNames(typeof(ItemIds));
                         foreach (var itmName in itemsNamesList)
                             Console.Write(itmName + ", ");
                         Console.WriteLine("");
                         break;
-                    case Commands.Commands.SearchAndAdd:
+                    case ConsoleCommands.SearchAndAdd:
                         if (cmdData.Length < 2)
                         {
-                            Console.WriteLine(@"Usage is: " + Commands.Commands.SearchAndAdd + " ItemId");
+                            Console.WriteLine(@"Usage is: " + ConsoleCommands.SearchAndAdd + " ItemId");
                             break;
                         }
 
@@ -63,10 +65,10 @@ namespace BlackTrader
                                 listOfFoundItems.Add(itmId);
                         DataPool?.AddItem(listOfFoundItems.ToArray());
                         break;
-                    case Commands.Commands.SearchAndUpdate:
+                    case ConsoleCommands.SearchAndUpdate:
                         if (cmdData.Length < 2)
                         {
-                            Console.WriteLine(@"Usage is: " + Commands.Commands.SearchAndAdd + " ItemId");
+                            Console.WriteLine(@"Usage is: " + ConsoleCommands.SearchAndAdd + " ItemId");
                             break;
                         }
 
@@ -79,10 +81,10 @@ namespace BlackTrader
                                 listOfFoundItems.Add(itmId);
                         DataPool?.Update(listOfFoundItems.ToArray());
                         break;
-                    case Commands.Commands.Search:
+                    case ConsoleCommands.Search:
                         if (cmdData.Length < 2)
                         {
-                            Console.WriteLine(@"Usage is: " + Commands.Commands.Search + " ItemId");
+                            Console.WriteLine(@"Usage is: " + ConsoleCommands.Search + " ItemId");
                             break;
                         }
 
@@ -99,12 +101,12 @@ namespace BlackTrader
 
                         Console.WriteLine("Found " + itemCounts + " items.");
                         break;
-                    case Commands.Commands.Add:
+                    case ConsoleCommands.Add:
                         if (cmdData.Length < 2)
                         {
-                            Console.WriteLine(@"Usage is: " + Commands.Commands.Add +
-                                              " ItemId \nTo get item lists use " + Commands.Commands.ItemsList +
-                                              "command or  search item by " + Commands.Commands.Search +
+                            Console.WriteLine(@"Usage is: " + ConsoleCommands.Add +
+                                              " ItemId \nTo get item lists use " + ConsoleCommands.ItemsList +
+                                              "command or  search item by " + ConsoleCommands.Search +
                                               " command.");
                             break;
                         }
@@ -113,15 +115,15 @@ namespace BlackTrader
                             DataPool?.AddItem(itemName);
                         else
                             Console.WriteLine(cmdData[1] + " Item not Exist. please search id by " +
-                                              Commands.Commands.Search + " command or " +
-                                              Commands.Commands.ItemsList);
+                                              ConsoleCommands.Search + " command or " +
+                                              ConsoleCommands.ItemsList);
                         break;
-                    case Commands.Commands.Remove:
+                    case ConsoleCommands.Remove:
                         if (cmdData.Length < 2)
                         {
-                            Console.WriteLine(@"Usage is: " + Commands.Commands.Remove +
-                                              " ItemId \nTo get item lists use " + Commands.Commands.ItemsList +
-                                              "command or  search item by " + Commands.Commands.Search +
+                            Console.WriteLine(@"Usage is: " + ConsoleCommands.Remove +
+                                              " ItemId \nTo get item lists use " + ConsoleCommands.ItemsList +
+                                              "command or  search item by " + ConsoleCommands.Search +
                                               " command.");
                             break;
                         }
@@ -130,10 +132,10 @@ namespace BlackTrader
                             DataPool?.RemoveItem(itemName);
                         else
                             Console.WriteLine(cmdData[1] + " Item not Exist. please search id by " +
-                                              Commands.Commands.Search + " command or " +
-                                              Commands.Commands.ItemsList);
+                                              ConsoleCommands.Search + " command or " +
+                                              ConsoleCommands.ItemsList);
                         break;
-                    case Commands.Commands.Update:
+                    case ConsoleCommands.Update:
                         if (cmdData.Length < 2)
                         {
                             Console.WriteLine("You are not entered any item id, we are updating all of them.");
@@ -145,10 +147,10 @@ namespace BlackTrader
                             DataPool?.Update(itemName);
                         else
                             Console.WriteLine(cmdData[1] + " Item not Exist. please search id by " +
-                                              Commands.Commands.Search + " command or " +
-                                              Commands.Commands.ItemsList);
+                                              ConsoleCommands.Search + " command or " +
+                                              ConsoleCommands.ItemsList);
                         break;
-                    case Commands.Commands.TradeOffers:
+                    case ConsoleCommands.TradeOffers:
 
                         // ReSharper disable once LocalFunctionCanBeMadeStatic
                         void PrintPairs(
@@ -178,11 +180,11 @@ namespace BlackTrader
                         PrintPairs(ItemDataPool.DataPoolAnalyser.TradeOffersFromCity(DataPool));
                         Console.WriteLine("Using this data is a big risk. not calculated number of items.");
                         break;
-                    case Commands.Commands.CityNames:
+                    case ConsoleCommands.CityNames:
                         var cities = DataPool.GetCities();
                         if (cities.Length < 1)
                         {
-                            Console.WriteLine("Please add item to data pool at first by " + Commands.Commands.Add +
+                            Console.WriteLine("Please add item to data pool at first by " + ConsoleCommands.Add +
                                               " command.");
                             break;
                         }
@@ -192,10 +194,10 @@ namespace BlackTrader
                             Console.Write(city + ", ");
                         Console.WriteLine();
                         break;
-                    case Commands.Commands.Save:
+                    case ConsoleCommands.Save:
                         if (cmdData.Length < 2)
                         {
-                            Console.WriteLine(@"Usage is: " + Commands.Commands.Save + " filename");
+                            Console.WriteLine(@"Usage is: " + ConsoleCommands.Save + " filename");
                             break;
                         }
 
@@ -203,10 +205,10 @@ namespace BlackTrader
                             DataPool.GetJson());
                         Console.WriteLine(cmdData[1] + " saved.");
                         break;
-                    case Commands.Commands.Load:
+                    case ConsoleCommands.Load:
                         if (cmdData.Length < 2)
                         {
-                            Console.WriteLine(@"Usage is: " + Commands.Commands.Load + " filename");
+                            Console.WriteLine(@"Usage is: " + ConsoleCommands.Load + " filename");
                             break;
                         }
 
@@ -221,17 +223,17 @@ namespace BlackTrader
                             cmdData[1] + ".json")));
                         Console.WriteLine(cmdData[1] + " loaded.");
                         break;
-                    case Commands.Commands.GetItems:
+                    case ConsoleCommands.GetItems:
                         Console.WriteLine("Current items that exist at pool:");
                         var itemIds = DataPool?.GetItems();
                         foreach (var itm in itemIds)
                             Console.Write(itm + ", ");
                         Console.WriteLine("Found "+itemIds.Length+" items.");
                         break;
-                    case Commands.Commands.WhereSell:
+                    case ConsoleCommands.WhereSell:
                         if (cmdData.Length < 2)
                         {
-                            Console.WriteLine(@"Usage is: " + Commands.Commands.WhereSell + " ItemID");
+                            Console.WriteLine(@"Usage is: " + ConsoleCommands.WhereSell + " ItemID");
                             break;
                         }
 
@@ -245,10 +247,10 @@ namespace BlackTrader
                         }
 
                         break;
-                    case Commands.Commands.WhereBuy:
+                    case ConsoleCommands.WhereBuy:
                         if (cmdData.Length < 2)
                         {
-                            Console.WriteLine(@"Usage is: " + Commands.Commands.WhereBuy + " ItemID");
+                            Console.WriteLine(@"Usage is: " + ConsoleCommands.WhereBuy + " ItemID");
                             break;
                         }
 
@@ -262,10 +264,43 @@ namespace BlackTrader
                         }
 
                         break;
+                    case ConsoleCommands.Conf:
+                        if (cmdData.Length < 2)
+                        {
+                            Console.WriteLine(@"Usage is: " + ConsoleCommands.Conf + " "+nameof(ConfigCommands));
+                            Console.WriteLine(nameof(ConfigCommands)+ " Commands List:");
+                            var confCmdList = Enum.GetNames(typeof(ConfigCommands));
+                            foreach (var hCmd in confCmdList)
+                                Console.WriteLine("- "+ConsoleCommands.Conf+" "+hCmd);
+                            break;
+                        }
+
+                        if(Enum.TryParse<ConfigCommands>(cmdData[1],true,out var confCmd))
+                            switch (confCmd)
+                            {
+                                case ConfigCommands.ChangeDateHoursLimit:
+                                    if (cmdData.Length < 3)
+                                    {
+                                        Console.WriteLine(@"Usage is: " + ConsoleCommands.Conf + " "+ConfigCommands.ChangeDateHoursLimit+" HoursNumber");
+                                        break;
+                                    }
+
+                                    if (int.TryParse(cmdData[2], out var hours))
+                                    {
+                                        Console.WriteLine(nameof(ItemDataPool.DataPoolAnalyser.UpdateDateHoursLimit)+" changed from "+ItemDataPool.DataPoolAnalyser.UpdateDateHoursLimit+" to "+hours+".");
+                                        ItemDataPool.DataPoolAnalyser.UpdateDateHoursLimit = hours;
+                                    }
+                                    else
+                                        Console.WriteLine("Cant Detect Hours Number, Please enter integer number!");
+                                    break;
+                                default:
+                                    throw new ArgumentOutOfRangeException();
+                            }
+                        break;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
-            } while (cmd != Commands.Commands.End && cmd != Commands.Commands.Exit);
+            } while (cmd != ConsoleCommands.End && cmd != ConsoleCommands.Exit);
         }
     }
 }

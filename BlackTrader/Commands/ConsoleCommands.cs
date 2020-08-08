@@ -1,6 +1,6 @@
 namespace BlackTrader.Commands
 {
-    public enum Commands
+    public enum ConsoleCommands
     {
         None,
         End,
@@ -19,6 +19,7 @@ namespace BlackTrader.Commands
         Update,
         TradeOffers,
         WhereSell,
-        WhereBuy
+        WhereBuy,
+        Conf
     }
 }

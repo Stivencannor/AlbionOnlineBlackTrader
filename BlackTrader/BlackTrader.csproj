@@ -72,7 +72,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Commands\Commands.cs" />
+    <Compile Include="Commands\ConsoleCommands.cs" />
+    <Compile Include="Commands\ConfigCommands.cs" />
     <Compile Include="DataPool\ItemDataPool.cs" />
     <Compile Include="DataPool\ItemDataPool.DataPoolAnalyser.cs" />
     <Compile Include="DataPool\ItemDataPool.DataPoolAnalyser.TradeOfferPair.cs" />

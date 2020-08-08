@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using BlackTrader.Items;
@@ -10,8 +9,9 @@ namespace BlackTrader.DataPool
     {
         public static partial class DataPoolAnalyser
         {
+            public static int UpdateDateHoursLimit = 24;
+
             /// <summary>
-            /// 
             /// </summary>
             /// <param name="dataPool"></param>
             /// <param name="item"></param>
@@ -32,8 +32,6 @@ namespace BlackTrader.DataPool
                 itemAndCities.Sort((details, itemDetails) => details.buy_price_max - itemDetails.buy_price_max);
                 return itemAndCities.ToArray();
             }
-
-            private const int UpdateDateHoursLimit = 24;
 
             public static IEnumerable<ItemDetails> WhereBuy(ItemDataPool dataPool, ItemIds item)
             {
@@ -92,12 +90,11 @@ namespace BlackTrader.DataPool
                     details.FromThisItem.MaxSellDateDiff.TotalHours > UpdateDateHoursLimit ||
                     details.ToThisItem.MaxBuyDateDiff.TotalHours > UpdateDateHoursLimit);
                 Console.WriteLine("Removed " + removeAll + " Old Date Items. (" + UpdateDateHoursLimit + " Hours)");
-                pairList.Sort((pair, offerPair) => (pair.MinDistancePrice() - offerPair.MinDistancePrice()));
-                pairListStarred.Sort((pair, offerPair) => (pair.MaxDistancePrice() - offerPair.MaxDistancePrice()));
+                pairList.Sort((pair, offerPair) => pair.MinDistancePrice() - offerPair.MinDistancePrice());
+                pairListStarred.Sort((pair, offerPair) => pair.MaxDistancePrice() - offerPair.MaxDistancePrice());
                 pairList.AddRange(pairListStarred);
                 return pairList.ToArray();
             }
-
         }
     }
 }
