@@ -91,6 +91,7 @@ namespace BlackTrader.DataPool
                 Console.WriteLine("Removed " + removeAll + " Old Date Items. (" + Configs.UpdateDateHoursLimit + " Hours)");
                 pairList.Sort((pair, offerPair) => pair.MinDistancePrice() - offerPair.MinDistancePrice());
                 pairListStarred.Sort((pair, offerPair) => pair.MaxDistancePrice() - offerPair.MaxDistancePrice());
+                //todo sort config by Hours,Benefit and more
                 pairList.AddRange(pairListStarred);
                 return pairList.ToArray();
             }
