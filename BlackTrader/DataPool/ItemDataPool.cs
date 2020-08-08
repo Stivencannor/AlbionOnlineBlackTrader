@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using BlackTrader.Config;
 using BlackTrader.Items;
 using Newtonsoft.Json;
 
@@ -10,6 +12,11 @@ namespace BlackTrader.DataPool
 {
     public partial class ItemDataPool
     {
+        public ItemDataPool()
+        {
+            Load(Configs.NameOfDataPoolAutoSaveFile);
+        }
+
         private readonly HttpClient client = new HttpClient();
         private Dictionary<ItemIds, ItemDetails[]> itemDataPool = new Dictionary<ItemIds, ItemDetails[]>();
 
@@ -27,9 +34,15 @@ namespace BlackTrader.DataPool
             return itemDataPool.Keys.ToArray();
         }
 
-        public void RemoveItem(ItemIds itemName)
+        public void Remove()
+        {
+            itemDataPool.Clear();
+            Save(Configs.NameOfDataPoolAutoSaveFile);
+        }
+        public void Remove(ItemIds itemName)
         {
             itemDataPool.Remove(itemName);
+            Save(Configs.NameOfDataPoolAutoSaveFile);
         }
 
         public void Update()
@@ -37,7 +50,7 @@ namespace BlackTrader.DataPool
             Update(GetItems());
         }
 
-        public void Update(ItemIds[] itemNames)
+        public void Update(params ItemIds[] itemNames)
         {
             Console.WriteLine("Updating " + itemNames.Length + " items.");
             var itemDetailsRequest = GetItemDetailsRequest(itemNames);
@@ -45,9 +58,10 @@ namespace BlackTrader.DataPool
             foreach (var key in itemDetailsRequest.Result.Keys)
                 itemDataPool[key] = itemDetailsRequest.Result[key];
             Console.WriteLine("All of " + itemNames.Length + " items updated.");
+            Save(Configs.NameOfDataPoolAutoSaveFile);
         }
 
-        public void AddItem(ItemIds[] itemNames)
+        public void Add(params ItemIds[] itemNames)
         {
             Console.WriteLine("Adding " + itemNames.Length + " items.");
             var itemDetailsRequest = GetItemDetailsRequest(itemNames);
@@ -55,22 +69,7 @@ namespace BlackTrader.DataPool
             foreach (var key in itemDetailsRequest.Result.Keys)
                 itemDataPool.Add(key, itemDetailsRequest.Result[key]);
             Console.WriteLine("All of " + itemNames.Length + " items added to pool.");
-        }
-
-        public void AddItem(ItemIds itemName)
-        {
-            var itemDetailsRequest = GetItemDetailsRequest(itemName);
-            itemDetailsRequest.Wait();
-            itemDataPool.Add(itemName, itemDetailsRequest.Result[itemName]);
-            Console.WriteLine(itemName + " added to item data pool.");
-        }
-
-        public void Update(ItemIds itemName)
-        {
-            var itemDetailsRequest = GetItemDetailsRequest(itemName);
-            itemDetailsRequest.Wait();
-            itemDataPool[itemName] = itemDetailsRequest.Result[itemName];
-            Console.WriteLine(itemName + " item updated at Data pool.");
+            Save(Configs.NameOfDataPoolAutoSaveFile);
         }
 
         public string[] GetCities()
@@ -90,6 +89,7 @@ namespace BlackTrader.DataPool
         {
             return await GetItemsDetailsRequest(itemNames);
         }
+
         private async Task<Dictionary<ItemIds, ItemDetails[]>> GetItemsDetailsRequest(
             IReadOnlyCollection<ItemIds> itemNames)
         {
@@ -108,7 +108,8 @@ namespace BlackTrader.DataPool
                 resp.EnsureSuccessStatusCode();
                 var result = JsonConvert.DeserializeObject<List<ItemDetails>>(await resp.Content.ReadAsStringAsync());
                 foreach (var itm in result.Where(itm => !globalList.ContainsKey(itm.ItemName)))
-                    globalList.Add(itm.ItemName, result.FindAll(details => details.item_id.Equals(itm.item_id)).ToArray());
+                    globalList.Add(itm.ItemName,
+                        result.FindAll(details => details.item_id.Equals(itm.item_id)).ToArray());
                 Console.WriteLine("Received " + (index + toCount) + "/" + itemNames.Count + " Items.");
             }
 
@@ -116,14 +117,18 @@ namespace BlackTrader.DataPool
             return globalList;
         }
 
-        public string GetJson()
+        public void Save(string fileName)
         {
-            return JsonConvert.SerializeObject(itemDataPool);
+            File.WriteAllText(Path.Combine(Directory.GetCurrentDirectory(), fileName + ".json"),
+                JsonConvert.SerializeObject(itemDataPool));
         }
 
-        public void SetJson(string text)
+        public bool Load(string fileName)
         {
-            itemDataPool = JsonConvert.DeserializeObject<Dictionary<ItemIds, ItemDetails[]>>(text);
+            if (!File.Exists(Path.Combine(Directory.GetCurrentDirectory(), fileName + ".json"))) return false;
+            itemDataPool = JsonConvert.DeserializeObject<Dictionary<ItemIds, ItemDetails[]>>(
+                File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), fileName + ".json")));
+            return true;
         }
     }
 }

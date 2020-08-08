@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using BlackTrader.Commands;
 using BlackTrader.Config;
@@ -24,8 +23,6 @@ namespace BlackTrader
                 Console.WriteLine("Please Enter your Command:");
                 //get command from console
                 var cmdData = Console.ReadLine()?.Split(' ');
-                Debug.Assert(cmdData != null, nameof(cmdData) + " != null");
-                Debug.Assert(DataPool != null, nameof(DataPool) + " != null");
                 Enum.TryParse(cmdData[0], true, out cmd);
                 //calc command
                 string[] itemsNamesList;
@@ -66,7 +63,7 @@ namespace BlackTrader
                         foreach (var itmName in itemsNamesList)
                             if (itmName.ToLower().Contains(lower) && Enum.TryParse<ItemIds>(itmName, out var itmId))
                                 listOfFoundItems.Add(itmId);
-                        DataPool?.AddItem(listOfFoundItems.ToArray());
+                        DataPool?.Add(listOfFoundItems.ToArray());
                         break;
                     case ConsoleCommands.SearchAndUpdate:
                         if (cmdData.Length < 2)
@@ -115,7 +112,7 @@ namespace BlackTrader
                         }
 
                         if (Enum.TryParse(cmdData[1].Replace("@","_AtSign_"), true, out itemName))
-                            DataPool?.AddItem(itemName);
+                            DataPool?.Add(itemName);
                         else
                             Console.WriteLine(cmdData[1] + " Item not Exist. please search id by " +
                                               ConsoleCommands.Search + " command or " +
@@ -132,7 +129,7 @@ namespace BlackTrader
                         }
 
                         if (Enum.TryParse(cmdData[1].Replace("@","_AtSign_"), true, out itemName))
-                            DataPool?.RemoveItem(itemName);
+                            DataPool?.Remove(itemName);
                         else
                             Console.WriteLine(cmdData[1] + " Item not Exist. please search id by " +
                                               ConsoleCommands.Search + " command or " +
@@ -204,8 +201,7 @@ namespace BlackTrader
                             break;
                         }
 
-                        File.WriteAllText(Path.Combine(Directory.GetCurrentDirectory(), cmdData[1] + ".json"),
-                            DataPool.GetJson());
+                        DataPool.Save(cmdData[1]);
                         Console.WriteLine(cmdData[1] + " saved.");
                         break;
                     case ConsoleCommands.Load:
@@ -222,9 +218,10 @@ namespace BlackTrader
                             break;
                         }
 
-                        DataPool.SetJson(File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(),
-                            cmdData[1] + ".json")));
-                        Console.WriteLine(cmdData[1] + " loaded.");
+                        if(DataPool.Load(cmdData[1]))
+                            Console.WriteLine(cmdData[1] + " loaded.");
+                        else
+                            Console.WriteLine(cmdData[1] + ".json not exist to load at data pool.");
                         break;
                     case ConsoleCommands.GetItems:
                         Console.WriteLine("Current items that exist at pool:");
