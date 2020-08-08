@@ -2,6 +2,7 @@ namespace BlackTrader.Commands
 {
     public enum ConfigCommands
     {
-        ChangeDateHoursLimit
+        ChangeDateHoursLimit,
+        ChangeAutoSaveDataPoolFileName
     }
 }

@@ -1,22 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using BlackTrader.Commands;
 using BlackTrader.Config;
 using BlackTrader.DataPool;
 using BlackTrader.Items;
-using Console = System.Console;
 
 namespace BlackTrader
 {
     internal static class Program
     {
         private static readonly ItemDataPool DataPool = new ItemDataPool();
-        
 
         public static void Main(string[] args)
         {
             Configs.Load();
+            DataPool.Load(Configs.NameOfDataPoolAutoSaveFile);
             ConsoleCommands cmd;
             do
             {
@@ -36,23 +34,16 @@ namespace BlackTrader
                         Console.WriteLine("Please Enter a Command:");
                         var helpCmdList = Enum.GetNames(typeof(ConsoleCommands));
                         foreach (var hCmd in helpCmdList)
-                            Console.WriteLine("- "+hCmd);
+                            Console.WriteLine("- " + hCmd);
                         break;
                     case ConsoleCommands.End:
                     case ConsoleCommands.Exit:
                         Console.WriteLine("Ending Program. :D");
                         break;
-                    case ConsoleCommands.ItemsList:
-                        Console.WriteLine("Items List:");
-                        itemsNamesList = Enum.GetNames(typeof(ItemIds));
-                        foreach (var itmName in itemsNamesList)
-                            Console.Write(itmName + ", ");
-                        Console.WriteLine("");
-                        break;
-                    case ConsoleCommands.SearchAndAdd:
+                    case ConsoleCommands.AddSearch:
                         if (cmdData.Length < 2)
                         {
-                            Console.WriteLine(@"Usage is: " + ConsoleCommands.SearchAndAdd + " ItemId");
+                            Console.WriteLine(@"Usage is: " + ConsoleCommands.AddSearch + " ItemId");
                             break;
                         }
 
@@ -65,10 +56,10 @@ namespace BlackTrader
                                 listOfFoundItems.Add(itmId);
                         DataPool?.Add(listOfFoundItems.ToArray());
                         break;
-                    case ConsoleCommands.SearchAndUpdate:
+                    case ConsoleCommands.UpdateSearch:
                         if (cmdData.Length < 2)
                         {
-                            Console.WriteLine(@"Usage is: " + ConsoleCommands.SearchAndAdd + " ItemId");
+                            Console.WriteLine(@"Usage is: " + ConsoleCommands.UpdateSearch + " ItemId");
                             break;
                         }
 
@@ -85,6 +76,7 @@ namespace BlackTrader
                         if (cmdData.Length < 2)
                         {
                             Console.WriteLine(@"Usage is: " + ConsoleCommands.Search + " ItemId");
+                            Console.WriteLine(@"or : " + ConsoleCommands.Search + " Command ItemId");
                             break;
                         }
 
@@ -105,35 +97,35 @@ namespace BlackTrader
                         if (cmdData.Length < 2)
                         {
                             Console.WriteLine(@"Usage is: " + ConsoleCommands.Add +
-                                              " ItemId \nTo get item lists use " + ConsoleCommands.ItemsList +
+                                              " ItemId \nTo get item lists use " + ConsoleCommands.Items +
                                               "command or  search item by " + ConsoleCommands.Search +
                                               " command.");
                             break;
                         }
 
-                        if (Enum.TryParse(cmdData[1].Replace("@","_AtSign_"), true, out itemName))
+                        if (Enum.TryParse(cmdData[1].Replace("@", "_AtSign_"), true, out itemName))
                             DataPool?.Add(itemName);
                         else
                             Console.WriteLine(cmdData[1] + " Item not Exist. please search id by " +
                                               ConsoleCommands.Search + " command or " +
-                                              ConsoleCommands.ItemsList);
+                                              ConsoleCommands.Items);
                         break;
                     case ConsoleCommands.Remove:
                         if (cmdData.Length < 2)
                         {
                             Console.WriteLine(@"Usage is: " + ConsoleCommands.Remove +
-                                              " ItemId \nTo get item lists use " + ConsoleCommands.ItemsList +
+                                              " ItemId \nTo get item lists use " + ConsoleCommands.Items +
                                               "command or  search item by " + ConsoleCommands.Search +
                                               " command.");
                             break;
                         }
 
-                        if (Enum.TryParse(cmdData[1].Replace("@","_AtSign_"), true, out itemName))
+                        if (Enum.TryParse(cmdData[1].Replace("@", "_AtSign_"), true, out itemName))
                             DataPool?.Remove(itemName);
                         else
                             Console.WriteLine(cmdData[1] + " Item not Exist. please search id by " +
                                               ConsoleCommands.Search + " command or " +
-                                              ConsoleCommands.ItemsList);
+                                              ConsoleCommands.Items);
                         break;
                     case ConsoleCommands.Update:
                         if (cmdData.Length < 2)
@@ -143,12 +135,12 @@ namespace BlackTrader
                             break;
                         }
 
-                        if (Enum.TryParse(cmdData[1].Replace("@","_AtSign_"), true, out itemName))
+                        if (Enum.TryParse(cmdData[1].Replace("@", "_AtSign_"), true, out itemName))
                             DataPool?.Update(itemName);
                         else
                             Console.WriteLine(cmdData[1] + " Item not Exist. please search id by " +
                                               ConsoleCommands.Search + " command or " +
-                                              ConsoleCommands.ItemsList);
+                                              ConsoleCommands.Items);
                         break;
                     case ConsoleCommands.TradeOffers:
 
@@ -180,7 +172,7 @@ namespace BlackTrader
                         PrintPairs(ItemDataPool.DataPoolAnalyser.TradeOffersFromCity(DataPool));
                         Console.WriteLine("Using this data is a big risk. not calculated number of items.");
                         break;
-                    case ConsoleCommands.CityNames:
+                    case ConsoleCommands.City:
                         var cities = DataPool.GetCities();
                         if (cities.Length < 1)
                         {
@@ -195,40 +187,25 @@ namespace BlackTrader
                         Console.WriteLine();
                         break;
                     case ConsoleCommands.Save:
-                        if (cmdData.Length < 2)
-                        {
-                            Console.WriteLine(@"Usage is: " + ConsoleCommands.Save + " filename");
-                            break;
-                        }
-
-                        DataPool.Save(cmdData[1]);
+                        DataPool.Save(cmdData.Length < 2 ? Configs.NameOfDataPoolAutoSaveFile : cmdData[1]);
                         Console.WriteLine(cmdData[1] + " saved.");
                         break;
                     case ConsoleCommands.Load:
-                        if (cmdData.Length < 2)
-                        {
-                            Console.WriteLine(@"Usage is: " + ConsoleCommands.Load + " filename");
-                            break;
-                        }
-
-                        if (!File.Exists(Path.Combine(Directory.GetCurrentDirectory(),
-                            cmdData[1] + ".json")))
-                        {
-                            Console.WriteLine(cmdData[1] + ".json File Not Exist.");
-                            break;
-                        }
-
-                        if(DataPool.Load(cmdData[1]))
+                        bool loaded;
+                        loaded = DataPool.Load(cmdData.Length < 2 ? Configs.NameOfDataPoolAutoSaveFile : cmdData[1]);
+                        if (loaded)
                             Console.WriteLine(cmdData[1] + " loaded.");
                         else
                             Console.WriteLine(cmdData[1] + ".json not exist to load at data pool.");
+                        if (cmdData.Length >= 1)
+                            DataPool.Save(Configs.NameOfDataPoolAutoSaveFile);
                         break;
-                    case ConsoleCommands.GetItems:
+                    case ConsoleCommands.Items:
                         Console.WriteLine("Current items that exist at pool:");
                         var itemIds = DataPool?.GetItems();
                         foreach (var itm in itemIds)
                             Console.Write(itm + ", ");
-                        Console.WriteLine("Found "+itemIds.Length+" items.");
+                        Console.WriteLine("Found " + itemIds.Length + " items.");
                         break;
                     case ConsoleCommands.WhereSell:
                         if (cmdData.Length < 2)
@@ -238,7 +215,7 @@ namespace BlackTrader
                         }
 
                         Console.WriteLine("best prices is:");
-                        if (Enum.TryParse<ItemIds>(cmdData[1].Replace("@","_AtSign_"), true, out var itmId2))
+                        if (Enum.TryParse<ItemIds>(cmdData[1].Replace("@", "_AtSign_"), true, out var itmId2))
                         {
                             var items = ItemDataPool.DataPoolAnalyser.WhereSell(DataPool, itmId2);
                             foreach (var itm in items)
@@ -255,7 +232,7 @@ namespace BlackTrader
                         }
 
                         Console.WriteLine("best prices is:");
-                        if (Enum.TryParse<ItemIds>(cmdData[1].Replace("@","_AtSign_"), true, out var itmId3))
+                        if (Enum.TryParse<ItemIds>(cmdData[1].Replace("@", "_AtSign_"), true, out var itmId3))
                         {
                             var items = ItemDataPool.DataPoolAnalyser.WhereBuy(DataPool, itmId3);
                             foreach (var itm in items)
@@ -267,36 +244,58 @@ namespace BlackTrader
                     case ConsoleCommands.Conf:
                         if (cmdData.Length < 2)
                         {
-                            Console.WriteLine(@"Usage is: " + ConsoleCommands.Conf + " "+nameof(ConfigCommands));
-                            Console.WriteLine(nameof(ConfigCommands)+ " Commands List:");
+                            Console.WriteLine(@"Usage is: " + ConsoleCommands.Conf + " " + nameof(ConfigCommands));
+                            Console.WriteLine(nameof(ConfigCommands) + " Commands List:");
                             var confCmdList = Enum.GetNames(typeof(ConfigCommands));
                             foreach (var hCmd in confCmdList)
-                                Console.WriteLine("- "+ConsoleCommands.Conf+" "+hCmd);
+                                Console.WriteLine("- " + ConsoleCommands.Conf + " " + hCmd);
                             break;
                         }
 
-                        if(Enum.TryParse<ConfigCommands>(cmdData[1],true,out var confCmd))
+                        if (Enum.TryParse<ConfigCommands>(cmdData[1], true, out var confCmd))
                             switch (confCmd)
                             {
                                 case ConfigCommands.ChangeDateHoursLimit:
                                     if (cmdData.Length < 3)
                                     {
-                                        Console.WriteLine(@"Usage is: " + ConsoleCommands.Conf + " "+ConfigCommands.ChangeDateHoursLimit+" HoursNumber");
+                                        Console.WriteLine(@"Usage is: " + ConsoleCommands.Conf + " " +
+                                                          ConfigCommands.ChangeDateHoursLimit + " HoursNumber");
                                         break;
                                     }
 
                                     if (int.TryParse(cmdData[2], out var hours))
                                     {
-                                        Console.WriteLine(nameof(Configs.UpdateDateHoursLimit)+" changed from "+Configs.UpdateDateHoursLimit+" to "+hours+".");
+                                        Console.WriteLine(nameof(Configs.UpdateDateHoursLimit) + " changed from " +
+                                                          Configs.UpdateDateHoursLimit + " to " + hours + ".");
                                         Configs.UpdateDateHoursLimit = hours;
                                     }
                                     else
+                                    {
                                         Console.WriteLine("Cant Detect Hours Number, Please enter integer number!");
+                                    }
+
+                                    break;
+                                case ConfigCommands.ChangeAutoSaveDataPoolFileName:
+                                    if (cmdData.Length < 3)
+                                    {
+                                        Console.WriteLine(@"Usage is: " + ConsoleCommands.Conf + " " +
+                                                          ConfigCommands.ChangeAutoSaveDataPoolFileName + " FileName");
+                                        break;
+                                    }
+
+                                    Console.WriteLine(nameof(Configs.NameOfDataPoolAutoSaveFile) + " changed from " +
+                                                      Configs.NameOfDataPoolAutoSaveFile + " to " + cmdData[2] + ".");
+                                    Configs.NameOfDataPoolAutoSaveFile = cmdData[2];
                                     break;
                                 default:
                                     throw new ArgumentOutOfRangeException();
                             }
+
                         Configs.Save();
+                        break;
+                    case ConsoleCommands.Clear:
+                        DataPool.Remove();
+                        Console.WriteLine("Data Pool Cleared.");
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
