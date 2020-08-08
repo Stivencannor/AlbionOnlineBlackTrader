@@ -21,7 +21,7 @@ Please install and use [Albion Online Data Project client](https://github.com/br
 
 
 #### Attention
-if you are using this project, some shop data may be old and its depend on [Albion Online Data Project](https://www.albion-online-data.com) you can help us to set new data by installing [Albion Online Data Project client](https://github.com/broderickhyman/albiondata-client) before BlackTrader Project.
+if you are using this project, some shop data may be old and its depend on [Albion Online Data Project](https://www.albion-online-data.com) you can help us to set new data by installing [Albion Online Data Project client](https://github.com/broderickhyman/albiondata-client) before BlackTrader Project. We do not accept any responsibility for the loss of your money in the purchase of the game.
 #### Is This Allowed
 'Our position is quite simple. As long as you just look and analyze we are ok with it. The moment you modify or manipulate something or somehow interfere with our services we will react (e.g. perma-ban, take legal action, whatever).'
 ~MadDave, Technical Lead at Sandbox Interactive for Albion Online, source
